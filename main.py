@@ -1,55 +1,66 @@
 import streamlit as st
-import random
+import pandas as pd
+import altair as alt
+import os
 
-# 🎨 페이지 기본 세팅
-st.set_page_config(page_title="MBTI 연애 처방소 💘", page_icon="💌", layout="centered")
+st.set_page_config(page_title="MBTI World Top10", page_icon="🌍", layout="centered")
 
-st.title("✨ MBTI 연애 처방소 💘")
-st.write("당신의 MBTI 유형을 선택하면, 어울리는 **연애 팁**을 알려드립니다 😍")
-st.write("예린이가 만들었고, 컴퓨터 충전기 안 챙겨온 이필중씨는 옆에서 구경만 했답니다!")
+st.title("🌍 MBTI 유형별 비율 Top10 국가")
+st.write("CSV 파일을 기본적으로 같은 폴더에서 불러오고, 없으면 업로드 기능을 사용합니다.")
 
-# MBTI 리스트
-mbti_types = [
-    "ISTJ", "ISFJ", "INFJ", "INTJ",
-    "ISTP", "ISFP", "INFP", "INTP",
-    "ESTP", "ESFP", "ENFP", "ENTP",
-    "ESTJ", "ESFJ", "ENFJ", "ENTJ"
-]
+# ---- 데이터 로드 ----
+@st.cache_data
+def load_data(file):
+    df = pd.read_csv(file, encoding="utf-8")
+    df.columns = [c.strip() for c in df.columns]
+    return df
 
-# 🎯 사용자 입력
-choice = st.selectbox("당신의 MBTI를 골라주세요 🎀", mbti_types)
+# ---- 기본 파일 체크 ----
+DATA_PATH = "countriesMBTI_16types.csv"
+if os.path.exists(DATA_PATH):
+    df = load_data(DATA_PATH)
+    st.success(f"✅ 기본 파일 `{DATA_PATH}` 로드 완료")
+else:
+    st.warning("⚠️ 기본 데이터 파일을 찾을 수 없습니다. CSV 파일을 업로드하세요.")
+    uploaded_file = st.file_uploader("CSV 파일 업로드", type=["csv"])
+    if uploaded_file is not None:
+        df = load_data(uploaded_file)
+        st.success("✅ 업로드한 파일 로드 완료")
+    else:
+        st.stop()
 
-# ✨ 추천 문구 사전
-recommendations = {
-    "ISTJ": "꾸준함이 매력 포인트! 📅 안정적인 데이트로 신뢰를 쌓으세요 💖",
-    "ISFJ": "세심한 배려가 최고 매력! 🌷 작은 이벤트로 마음을 표현해 보세요 🎁",
-    "INFJ": "깊은 대화로 사랑을 키워보세요 🌌 마음의 연결이 가장 큰 힘이 됩니다 💞",
-    "INTJ": "계획적인 당신, 깜짝스러운 로맨스로 변화를 주면 💥 매력이 배가 돼요 😉",
-    "ISTP": "즉흥적인 모험 데이트 🏄‍♂️ 함께 즐기며 자연스럽게 가까워져 보세요 🌟",
-    "ISFP": "감성 가득한 당신 🎨 음악, 미술, 자연 속 데이트가 사랑을 키워줘요 🌳",
-    "INFP": "진심 어린 편지 ✍️, 따뜻한 말 한마디가 당신의 무기예요 💌",
-    "INTP": "유머와 아이디어 💡로 상대를 웃게 만들면, 매력이 뿜뿜! 😂",
-    "ESTP": "액티비티 데이트 🏀🎢 활발한 에너지로 즐거운 추억을 만드세요 🎉",
-    "ESFP": "파티의 주인공 🕺💃 분위기를 즐기며 자연스럽게 호감도를 높이세요 🥂",
-    "ENFP": "애정 표현을 아낌없이 💕! 진심 어린 직진이 최고의 매력 ✨",
-    "ENTP": "재치와 도전 정신 🤹 대화와 유머로 설레는 순간을 만들어 보세요 ⚡",
-    "ESTJ": "믿음직한 리더십 💪 책임감 있는 모습으로 상대의 마음을 사로잡으세요 🔑",
-    "ESFJ": "따뜻한 배려와 다정함 🍲 함께하는 시간을 소중히 하세요 🌈",
-    "ENFJ": "공감 능력 최고 👍 상대방 이야기를 경청하고 진심으로 이해해 주세요 🌹",
-    "ENTJ": "자신감 넘치는 매력 😎 추진력 있는 데이트 계획으로 상대를 감동시키세요 🚀",
-}
+# ---- MBTI 컬럼 목록 ----
+MBTI_TYPES = [c for c in df.columns if c.upper() in {
+    "INFJ","INFP","INTJ","INTP","ISFJ","ISFP","ISTJ","ISTP",
+    "ENFJ","ENFP","ENTJ","ENTP","ESFJ","ESFP","ESTJ","ESTP"}]
+MBTI_TYPES = sorted(MBTI_TYPES, key=lambda x: x.upper())
 
-# 🌟 버튼 클릭 시 추천 표시
-if st.button("💘 나의 연애 처방 받기 💘"):
-    st.balloons()  # 풍선 효과
-    st.success(f"✨ {choice} 유형을 위한 연애 처방전 ✨")
-    st.write(f"👉 {recommendations[choice]}")
+# ---- 사이드바 ----
+st.sidebar.header("⚙️ 옵션")
+selected_mbti = st.sidebar.selectbox(
+    "MBTI 유형을 선택하세요",
+    MBTI_TYPES,
+    index=MBTI_TYPES.index("INFP") if "INFP" in MBTI_TYPES else 0
+)
 
-    # 랜덤 재미 요소 추가
-    fun_messages = [
-        "💡 사랑은 타이밍! 지금 바로 메시지를 보내보는 건 어떨까요?",
-        "🎶 오늘은 로맨틱한 음악과 함께 분위기를 잡아보세요!",
-        "🍫 달콤한 간식처럼, 작은 다정함이 사랑을 더 깊게 만듭니다.",
-        "🌌 별빛 같은 대화가 두 사람을 더 가깝게 만들어 줄 거예요!"
-    ]
-    st.info(random.choice(fun_messages))
+# ---- Top10 계산 ----
+top10 = df[["Country", selected_mbti]].sort_values(by=selected_mbti, ascending=False).head(10)
+
+# ---- Altair 그래프 ----
+chart = (
+    alt.Chart(top10)
+    .mark_bar(color="steelblue")
+    .encode(
+        x=alt.X(selected_mbti, title=f"{selected_mbti} 비율", axis=alt.Axis(format=",.2f")),
+        y=alt.Y("Country", sort="-x", title="국가"),
+        tooltip=["Country", alt.Tooltip(selected_mbti, format=",.4f")]
+    )
+    .interactive()
+)
+
+st.subheader(f"'{selected_mbti}' 유형 비율 Top10 국가")
+st.altair_chart(chart, use_container_width=True)
+
+# ---- 데이터 테이블 ----
+st.write("📋 Top10 국가 데이터")
+st.dataframe(top10.style.format({selected_mbti: "{:.4f}"}))
