@@ -4,7 +4,7 @@ import random
 # 🎨 페이지 기본 세팅
 st.set_page_config(page_title="MBTI 연애 처방소 💘", page_icon="💌", layout="centered")
 
-st.title("✨ MBTI 연애 처방소 💘")
+st.title("✨ 예린이와 컴퓨터 충전기 안 챙겨온 이필중씨의 MBTI 연애 처방소 💘")
 st.write("당신의 MBTI 유형을 선택하면, 어울리는 **연애 팁**을 알려드립니다 😍")
 
 # MBTI 리스트
