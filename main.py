@@ -6,7 +6,7 @@ st.set_page_config(page_title="MBTI 연애 처방소 💘", page_icon="💌", la
 
 st.title("✨ MBTI 연애 처방소 💘")
 st.write("당신의 MBTI 유형을 선택하면, 어울리는 **연애 팁**을 알려드립니다 😍")
-st.write("예린이와 컴퓨터 충전기 안 챙겨온 이필중씨가 만들었답니다!")
+st.write("예린이가 만들었고, 컴퓨터 충전기 안 챙겨온 이필중씨는 옆에서 구경만 했답니다!")
 
 # MBTI 리스트
 mbti_types = [
